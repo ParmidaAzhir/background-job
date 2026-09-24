@@ -83,7 +83,9 @@ async def make_report(ctx: inngest.Context) -> str:
 
     def build_report():
         if topic == "fail":
+            reports[report_id]["status"] = "failed"
             raise Exception("The report oven is broken!")
+
         reports[report_id]["status"] = "done"
         reports[report_id]["result"] = f"Report about {topic}"
 
@@ -91,9 +93,23 @@ async def make_report(ctx: inngest.Context) -> str:
 
     return "Report completed"
 
+@inngest_client.create_function(
+    fn_id="heartbeat",
+    trigger=inngest.TriggerCron(cron="* * * * *"),
+)
+async def heartbeat(ctx: inngest.Context) -> str:
+    pending = sum(1 for report in reports.values() if report["status"] == "pending")
+    done = sum(1 for report in reports.values() if report["status"] == "done")
+    failed = sum(1 for report in reports.values() if report["status"] == "failed")
+
+    summary = f"pending={pending}, done={done}, failed={failed}"
+    print(summary)
+
+    return summary
+
 # Makes the Inngest functions available at /api/inngest
 inngest.fast_api.serve(
     app,
     inngest_client,
-    [say_hello, make_report],
+    [say_hello, make_report, heartbeat],
 )
