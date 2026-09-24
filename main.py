@@ -15,6 +15,8 @@ def health():
 
 @app.post("/reports", status_code=202)
 async def create_report(data: dict):
+    if "topic" not in data or not data["topic"]:
+        raise HTTPException(status_code=400, detail="Topic is required")
     report_id = str(uuid.uuid4())
 
     reports[report_id] = {
@@ -68,6 +70,7 @@ async def say_hello(ctx: inngest.Context) -> str:
 @inngest_client.create_function(
     fn_id="make-report",
     trigger=inngest.TriggerEvent(event="report/requested"),
+    retries=2,
 )
 async def make_report(ctx: inngest.Context) -> str:
     report_id = ctx.event.data["id"]
@@ -79,6 +82,8 @@ async def make_report(ctx: inngest.Context) -> str:
     )
 
     def build_report():
+        if topic == "fail":
+            raise Exception("The report oven is broken!")
         reports[report_id]["status"] = "done"
         reports[report_id]["result"] = f"Report about {topic}"
 
