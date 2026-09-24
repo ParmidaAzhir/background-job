@@ -190,7 +190,19 @@ The Inngest dashboard shows:
 
 ### Screenshot
 
-Add the final dashboard screenshot here before submission:
+## Dashboard Proof
+
+### Successful background job
+
+![Successful make-report run](screenshots/make-report-success.png)
+
+### Failed job with retries
+
+![Failed make-report run with retries](screenshots/make-report-failed.png)
+
+### Cron heartbeat
+
+![Heartbeat cron runs](screenshots/heartbeat.png)
 
 ```markdown
 ![Inngest dashboard](screenshots/inngest-dashboard.png)
